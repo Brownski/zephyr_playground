@@ -1,0 +1,3 @@
+manifest:
+  # lowest version of the manifest file schema that can parse this file’s data
+  version: 0.8
