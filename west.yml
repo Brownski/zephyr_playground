@@ -10,3 +10,6 @@ manifest:
         name-allowlist:
         - hal_nordic
         - cmsis
+        - open-amp
+        - libmetal
+        - tinycrypt

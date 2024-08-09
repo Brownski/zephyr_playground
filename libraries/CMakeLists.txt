@@ -1,1 +1,2 @@
-add_subdirectory_ifdef(CONFIG_GOVEE govee)
+zephyr_include_directories(include)
+zephyr_library_sources(active_object.c)
