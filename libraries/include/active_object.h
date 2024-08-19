@@ -18,11 +18,12 @@ typedef void (*dispatch_handler)(zephyr_ao const *me, const uint8_t signal);
 
 void zephyrAO_constructor(zephyr_ao *, dispatch_handler);
 void zephyrAO_start(zephyr_ao *, char *, k_thread_stack_t *);
+void zephyrAO_post(zephyr_ao *me);
 
 struct zephyr_ao_t
 {
-    struct k_msgq *ao_msg_queue;
-    struct k_thread *ao_thread;
+    struct k_msgq ao_msg_queue;
+    struct k_thread ao_thread;
     dispatch_handler handler;
     struct data_item_type data;
 };

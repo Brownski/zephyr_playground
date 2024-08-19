@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/logging/log.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/hci.h>
@@ -16,7 +17,9 @@
 
 #include <active_object.h>
 
-static zephyr_ao buttonAO;
+LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
+
+zephyr_ao buttonAO;
 static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal);
 
 char my_msgq_buffer[10 * sizeof(struct data_item_type)];
@@ -36,13 +39,13 @@ struct k_msgq my_msgq;
 
 /* size of stack area used by each thread */
 #define STACKSIZE 1024
+K_THREAD_STACK_DEFINE(buttonAO_stack, STACKSIZE);
 
 /* scheduling priority used by each thread */
 #define PRIORITY 7
 
 #define BUTTON_PRESSED 1
 
-K_THREAD_STACK_DEFINE(buttonAO_stack, STACKSIZE);
 /*
  * A build error on this line means your board is unsupported.
  * See the sample documentation for information on how to fix this.
@@ -56,12 +59,15 @@ static struct gpio_callback trigger_pin_callback_data;
 
 static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal)
 {
+
 	switch (signal)
 	{
 	case BUTTON_PRESSED:
-		/* code */
+		gpio_pin_toggle_dt(&led0);
+		//gpio_pin_toggle_dt(&led1);
+		//gpio_pin_toggle_dt(&led2);
 		break;
-	
+
 	default:
 		break;
 	}
@@ -69,19 +75,7 @@ static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal)
 
 static void trigger_pin_callback_handler(const struct device *port, struct gpio_callback *cb, gpio_port_pins_t pins)
 {
-
-	struct data_item_type data;
-
-	data.field1 = 0;
-	data.field2 = 1;
-	data.field3 = 1;
-
-	/* send data to consumers */
-	while (k_msgq_put(&my_msgq, &data, K_NO_WAIT) != 0)
-	{
-		/* message queue is full: purge old data & try again */
-		k_msgq_purge(&my_msgq);
-	}
+	zephyrAO_post(&buttonAO);
 }
 
 static int setup_gpio(void)
@@ -131,9 +125,14 @@ static int setup_gpio(void)
 
 int main(void)
 {
-	setup_gpio();
+	int res = 0;
 
-	zephyrAO_constructor(&buttonAO, buttonAO_handler);
+	res = setup_gpio();
+
+	LOG_INF("Successfully initialised the GPIO!");
+
+	zephyrAO_constructor(&buttonAO, &buttonAO_handler);
+
 	zephyrAO_start(&buttonAO, my_msgq_buffer, buttonAO_stack);
 
 	return 0;
