@@ -5,12 +5,16 @@
 
 #define BASIC_PRIORITY 7
 
-struct data_item_type
+typedef enum
 {
-    uint32_t field1;
-    uint32_t field2;
-    uint32_t field3;
-};
+    BUTTON_PRESSED,
+    SPI_PACKET_RXD
+} Signal;
+
+typedef struct
+{
+    Signal signal;
+} Event;
 
 typedef struct zephyr_ao_t zephyr_ao;
 
@@ -18,14 +22,13 @@ typedef void (*dispatch_handler)(zephyr_ao const *me, const uint8_t signal);
 
 void zephyrAO_constructor(zephyr_ao *, dispatch_handler);
 void zephyrAO_start(zephyr_ao *, char *, k_thread_stack_t *);
-void zephyrAO_post(zephyr_ao *me);
+void zephyrAO_post(zephyr_ao *me, Event *data);
 
 struct zephyr_ao_t
 {
     struct k_msgq ao_msg_queue;
     struct k_thread ao_thread;
     dispatch_handler handler;
-    struct data_item_type data;
 };
 
 #endif

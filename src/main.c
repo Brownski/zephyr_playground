@@ -22,7 +22,7 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 zephyr_ao buttonAO;
 static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal);
 
-char my_msgq_buffer[10 * sizeof(struct data_item_type)];
+char my_msgq_buffer[10 * sizeof(Event)];
 struct k_msgq my_msgq;
 
 /* 1000 msec = 1 sec */
@@ -75,7 +75,8 @@ static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal)
 
 static void trigger_pin_callback_handler(const struct device *port, struct gpio_callback *cb, gpio_port_pins_t pins)
 {
-	zephyrAO_post(&buttonAO);
+	Event event = {SPI_PACKET_RXD};
+	zephyrAO_post(&buttonAO, &event);
 }
 
 static int setup_gpio(void)
@@ -128,9 +129,7 @@ int main(void)
 	int res = 0;
 
 	res = setup_gpio();
-
-	LOG_INF("Successfully initialised the GPIO!");
-
+	
 	zephyrAO_constructor(&buttonAO, &buttonAO_handler);
 
 	zephyrAO_start(&buttonAO, my_msgq_buffer, buttonAO_stack);
