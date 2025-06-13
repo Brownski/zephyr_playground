@@ -8,12 +8,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
-
 #include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/bluetooth/hci.h>
-#include <zephyr/bluetooth/conn.h>
-#include <zephyr/bluetooth/uuid.h>
-#include <zephyr/bluetooth/gatt.h>
+
 
 #include <active_object.h>
 
@@ -81,39 +77,38 @@ static void trigger_pin_callback_handler(const struct device *port, struct gpio_
 
 static int setup_gpio(void)
 {
-	uint8_t ret = 0;
 
 	if (!gpio_is_ready_dt(&led0))
 	{
-		return 0;
+		return -1;
 	}
 
 	ret = gpio_pin_configure_dt(&led0, GPIO_OUTPUT_ACTIVE);
 	if (ret < 0)
 	{
-		return 0;
+		return -1;
 	}
 
 	if (!gpio_is_ready_dt(&led1))
 	{
-		return 0;
+		return -1;
 	}
 
 	ret = gpio_pin_configure_dt(&led1, GPIO_OUTPUT_ACTIVE);
 	if (ret < 0)
 	{
-		return 0;
+		return -1;
 	}
 
 	if (!gpio_is_ready_dt(&led2))
 	{
-		return 0;
+		return -1;
 	}
 
 	ret = gpio_pin_configure_dt(&led2, GPIO_OUTPUT_ACTIVE);
 	if (ret < 0)
 	{
-		return 0;
+		return -1;
 	}
 
 	gpio_pin_configure_dt(&button, GPIO_INPUT);
@@ -121,15 +116,26 @@ static int setup_gpio(void)
 	gpio_init_callback(&trigger_pin_callback_data, trigger_pin_callback_handler, BIT(button.pin));
 	gpio_add_callback(button.port, &trigger_pin_callback_data);
 
-	return 1;
+	return 0;
 }
 
 int main(void)
 {
-	int res = 0;
 
-	res = setup_gpio();
-	
+	int err;
+
+	err = bt_enable(NULL);
+	if (err) {
+		printk("Bluetooth init failed (err %d)\n", err);
+		return 0;
+	}
+
+	err = setup_gpio();
+	if (err) {
+		printk("GPIO init failed (err %d)\n", err);
+		return 0;
+	}
+
 	zephyrAO_constructor(&buttonAO, &buttonAO_handler);
 
 	zephyrAO_start(&buttonAO, my_msgq_buffer, buttonAO_stack);
