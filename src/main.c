@@ -77,7 +77,7 @@ static void trigger_pin_callback_handler(const struct device *port, struct gpio_
 
 static int setup_gpio(void)
 {
-
+	int ret = 0;
 	if (!gpio_is_ready_dt(&led0))
 	{
 		return -1;

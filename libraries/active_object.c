@@ -8,15 +8,17 @@ K_THREAD_STACK_DEFINE(stack, STACKSIZE);
 static void zephyrAO_threadFunction(void *p1, void *p2, void *p3)
 {
     zephyr_ao *me = (zephyr_ao *)p1;
+    const Event initEvent = {AO_INIT};
     ARG_UNUSED(p2);
     ARG_UNUSED(p3);
-
     Event event;
+
+    me->handler(me, initEvent);
 
     while (1)
     {
         k_msgq_get(&me->ao_msg_queue, &event, K_FOREVER);
-        me->handler(me, event.signal);
+        me->handler(me, event);
     }
 }
 

@@ -7,8 +7,13 @@
 
 typedef enum
 {
+    AO_INIT = 0,
     BUTTON_PRESSED,
-    SPI_PACKET_RXD
+    SPI_PACKET_RXD,
+    /*BLE Specific Signals start */
+    BLE_ADV_PACKET_RECEIVED,
+    BLE_NOTIFY_RECEIVED,
+    BLE_WRITE_RECEIVED
 } Signal;
 
 typedef struct
@@ -18,7 +23,7 @@ typedef struct
 
 typedef struct zephyr_ao_t zephyr_ao;
 
-typedef void (*dispatch_handler)(zephyr_ao const *me, const uint8_t signal);
+typedef void (*dispatch_handler)(zephyr_ao const *me, const Event event);
 
 void zephyrAO_constructor(zephyr_ao *, dispatch_handler);
 void zephyrAO_start(zephyr_ao *, char *, k_thread_stack_t *);
