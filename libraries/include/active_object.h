@@ -5,10 +5,14 @@
 
 #define BASIC_PRIORITY 7
 
+#define AO_TRANSITION(ao, state)    ao.handler = &ao##_##state
+
 typedef enum
 {
     AO_INIT = 0,
-    BUTTON_PRESSED,
+    BUTTON1_PRESSED,
+    BUTTON2_PRESSED,
+    BUTTON3_PRESSED,
     SPI_PACKET_RXD,
     /*BLE Specific Signals start */
     BLE_ADV_PACKET_RECEIVED,

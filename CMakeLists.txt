@@ -6,4 +6,4 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(app)
 
 add_subdirectory(libraries)
-target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE src/main.c src/ble/ble_connection_manager.c src/ble/ble_transport.c)

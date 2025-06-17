@@ -16,7 +16,7 @@
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 
 zephyr_ao buttonAO;
-static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal);
+static void buttonAO_handler(zephyr_ao const *me, const Event event);
 
 char my_msgq_buffer[10 * sizeof(Event)];
 struct k_msgq my_msgq;
@@ -53,15 +53,13 @@ static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(BUTTON_NODE, gpios);
 
 static struct gpio_callback trigger_pin_callback_data;
 
-static void buttonAO_handler(zephyr_ao const *me, const uint8_t signal)
+static void buttonAO_handler(zephyr_ao const *me, const Event event)
 {
 
-	switch (signal)
+	switch (event.signal)
 	{
 	case BUTTON_PRESSED:
 		gpio_pin_toggle_dt(&led0);
-		//gpio_pin_toggle_dt(&led1);
-		//gpio_pin_toggle_dt(&led2);
 		break;
 
 	default:
