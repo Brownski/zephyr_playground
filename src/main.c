@@ -40,8 +40,6 @@ K_THREAD_STACK_DEFINE(buttonAO_stack, STACKSIZE);
 /* scheduling priority used by each thread */
 #define PRIORITY 7
 
-#define BUTTON_PRESSED 1
-
 /*
  * A build error on this line means your board is unsupported.
  * See the sample documentation for information on how to fix this.
@@ -58,7 +56,7 @@ static void buttonAO_handler(zephyr_ao const *me, const Event event)
 
 	switch (event.signal)
 	{
-	case BUTTON_PRESSED:
+	case BUTTON1_PRESSED:
 		gpio_pin_toggle_dt(&led0);
 		break;
 
@@ -69,7 +67,7 @@ static void buttonAO_handler(zephyr_ao const *me, const Event event)
 
 static void trigger_pin_callback_handler(const struct device *port, struct gpio_callback *cb, gpio_port_pins_t pins)
 {
-	Event event = {SPI_PACKET_RXD};
+	Event event = {BUTTON1_PRESSED};
 	zephyrAO_post(&buttonAO, &event);
 }
 
@@ -114,6 +112,7 @@ static int setup_gpio(void)
 	gpio_init_callback(&trigger_pin_callback_data, trigger_pin_callback_handler, BIT(button.pin));
 	gpio_add_callback(button.port, &trigger_pin_callback_data);
 
+	printk("GPIO initialisation complete.");
 	return 0;
 }
 
@@ -121,12 +120,6 @@ int main(void)
 {
 
 	int err;
-
-	err = bt_enable(NULL);
-	if (err) {
-		printk("Bluetooth init failed (err %d)\n", err);
-		return 0;
-	}
 
 	err = setup_gpio();
 	if (err) {
