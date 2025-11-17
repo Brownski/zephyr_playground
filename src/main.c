@@ -38,7 +38,7 @@ struct k_msgq my_msgq;
 K_THREAD_STACK_DEFINE(buttonAO_stack, STACKSIZE);
 
 /* scheduling priority used by each thread */
-#define PRIORITY 7
+#define PRIORITY 6
 
 /*
  * A build error on this line means your board is unsupported.
